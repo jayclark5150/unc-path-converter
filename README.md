@@ -1,63 +1,42 @@
 # UNC Path Converter
 
-Version 1.0.0
+**Version 1.1.0**
 
-A small cross-platform desktop app that turns paths on mapped network drives into their full
-UNC paths, so you can share a link that works on anyone's machine.
-
-```
-Z:\Reports\Q3 summary.xlsx   ->   \\fileserver\projects\Reports\Q3 summary.xlsx
-```
+A small PowerShell WinForms utility that converts mapped drive paths (e.g. `Z:\Folder`) into their underlying UNC paths (e.g. `\\Server\Share\Folder`).
 
 ## Features
-- **Auto-detects mappings**
-  - Windows: every mapped drive letter, including remembered-but-disconnected ones
-  - Linux: CIFS/SMB mounts from `/proc/mounts`, plus GNOME Files (GVFS) `smb-share` paths
-  - macOS: SMB shares mounted under `/Volumes`
-- **Manual mappings** for anything not detected (e.g. converting a colleague's `Z:` path on a
-  machine where `Z:` isn't mapped). Manual entries override detected ones and are saved.
-- Converts many paths at once (one per line); results update as you type
-- Accepts paths with forward or back slashes and surrounding quotes
-- Output as UNC (`\\server\share\path`), `smb://` URL, or `file://` URL
-- Copy all results with one click
-- Command-line mode for scripts
+
+- Accepts paths pasted from Explorer's Copy as path (quotes handled automatically)
+- Converts mapped network drives to UNC using Win32_LogicalDisk
+- Copies the result to clipboard automatically
+- Open UNC location directly in Explorer (paths with spaces are supported)
 
 ## Run
-Requires Python 3.10+ with Tkinter. No other dependencies.
 
-```
-python3 uncpath.py
-```
-
-- **Windows / macOS**: the python.org installer includes Tkinter.
-- **Linux (Debian/Ubuntu)**: `sudo apt install python3-tk`
-
-### Command line
-Pass one or more paths to print their UNC paths instead of opening the window:
-
-```
-python3 uncpath.py "Z:\Reports\Q3 summary.xlsx" "P:\docs"
+```powershell
+powershell.exe -ExecutionPolicy Bypass -File .\20261024-UNCPathConverter.ps1
 ```
 
-Paths that can't be converted are reported on stderr, and the exit code is 1.
+## Compile to EXE
 
-## Where manual mappings are saved
-| OS | File |
-|---|---|
-| Windows | `%APPDATA%\UNC Path Converter\mappings.json` |
-| macOS | `~/Library/Application Support/UNC Path Converter/mappings.json` |
-| Linux | `~/.config/UNC Path Converter/mappings.json` |
-
-## Build a double-click desktop app
-See [BUILDING.md](BUILDING.md) for step-by-step instructions for Windows, macOS and Linux,
-including a Linux app-menu launcher. Quick version (run on each target OS):
-
-```
-pip install pyinstaller
-pyinstaller --onefile --windowed --name UNCPathConverter uncpath.py
+```powershell
+Install-Module PS2EXE -Scope CurrentUser
+Invoke-PS2EXE -InputFile .\20261024-UNCPathConverter.ps1 -OutputFile .\20261024-UNCPathConverter.exe -NoConsole
 ```
 
 ## Changelog
 
-### 1.0.0
-- Initial release
+### 1.1.0 (2026-10-24)
+
+- Fixed: "Open UNC" now quotes the path, so folders with spaces open in the correct location.
+- Fixed: the drive letter is replaced with plain string handling instead of a regex replace, so a `$` in a share name (such as an admin share) is never misread.
+- Fixed: Run and Compile commands in this README now use the actual script file name.
+- Added: the version number is shown in the window title.
+
+### 1.0.0 (2026-07-07)
+
+- Initial release.
+
+## Author
+
+Jay
